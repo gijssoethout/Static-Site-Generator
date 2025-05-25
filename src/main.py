@@ -1,26 +1,24 @@
-from textnode import TextType, TextNode
-from htmlnode import HTMLNode, LeafNode, ParentNode 
+import os
+import shutil
+
+from copystatic import copy_files_recursive
+from gencontent import generate_pages_recursive
+
+
+dir_path_static = "./static"
+dir_path_public = "./public"
+dir_path_content = "./content"
+template_path = "./template.html"
 
 def main():
-    textnode = TextNode("This is some anchor text", "link", "https://www.boot.dev")
-    print(textnode)
+    print("Deleting public directory...")
+    if os.path.exists(dir_path_public):
+        shutil.rmtree(dir_path_public)
 
-def text_node_to_html_node(text_node):
-    match TextType:
-        case TextType.TEXT:
-            return LeafNode(None, f"{text_node.text}")
-        case TextType.BOLD:
-            return LeafNode("b", f"{text_node.text}")
-        case TextType.ITALIC:
-            return LeafNode("i", f"{text_node.text}")
-        case TextType.CODE:
-            return LeafNode("code", f"{text_node.text}")
-        case TextType.LINK:
-            return LeafNode("a", f"{text_node.text}", {"href": text_node.url})
-        case TextType.IMAGE:
-            return LeafNode("img", "", {"src": text_node.url, "alt": text_node.text})
-        case _:
-            raise Exception("Invalid TextType")
+    print("Copying static files to public directory...")
+    copy_files_recursive(dir_path_static, dir_path_public)
 
-if __name__ == "__main__":
-    main()
+    generate_pages_recursive(dir_path_content, template_path, dir_path_public)
+
+
+main()
